@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class PlayerController : MonoBehaviour {
 	Transform player;
@@ -48,12 +49,14 @@ public class PlayerController : MonoBehaviour {
 	}
 		
 	void OnCollisionEnter2D(Collision2D coll) {
-		if (coll.transform.tag == "step") {
+		Transform obj = coll.transform;
+		if (obj.tag == "step") {
 			playerRig.AddForce(Vector2.up * upSpeed);
 			playerRig.gravityScale = commonScale;
 			if (moveSpeed == 0 && isStart) {
 				moveSpeed = rightSpeed;
 			} 
+			obj.DOPunchPosition (Vector3.down/10, 0.4f, 8, 0.3f, false);
 		}
 	}
 
