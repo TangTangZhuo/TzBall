@@ -68,6 +68,10 @@ public class PlayerController : MonoBehaviour {
 			//player.position = birthPosition;
 			isReset = false;
 			moveSpeed = 0;
+			StepGenerate.Instance.stepPool.DespawnAll ();
+			StepGenerate.Instance.wallPool.DespawnAll ();
+			StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
+			StepGenerate.Instance.InstStep (5);
 		}
 	}
 }
