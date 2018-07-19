@@ -126,6 +126,7 @@ public class PlayerController : MonoBehaviour {
 		UIManager.Instance.showGameOver (false);
 		playerRig.gravityScale = 5;
 		isReset = false;
+		combo = 1;
 		StepGenerate.Instance.stepPool.DespawnAll ();
 		StepGenerate.Instance.wallPool.DespawnAll ();
 		StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
