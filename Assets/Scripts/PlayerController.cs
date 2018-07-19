@@ -16,21 +16,39 @@ public class PlayerController : MonoBehaviour {
 	private bool isStart = false;
 	private bool isReset = true;
 	private Vector3 birthPosition;
+
+	private int score = 0;
+	private int currentLevel;
+	private int combo=1;
+	bool isPerfect = false;
 	// Use this for initialization
 	void Start () {
 		player = this.transform;
 		playerRig = player.GetComponent<Rigidbody2D> ();
 		birthPosition = player.position;
+		currentLevel = PlayerPrefs.GetInt ("currentLevel", 1);
 	}
 
 	// Update is called once per frame
 	void Update () {
 		if (Vector3.Distance (mainCamera.position, new Vector3 (player.position.x + 1, mainCamera.position.y, mainCamera.position.z)) < 3) {
+
 			if (Input.GetKeyDown (KeyCode.Q)) {
 				playerRig.gravityScale = gravityScale;
 				if (!isStart)
 					isStart = true;
 			}
+			#if UNITY_ANDROID
+			if(Input.touchCount==1)
+			{
+				if(Input.touches[0].phase==TouchPhase.Began)
+				{
+					playerRig.gravityScale = gravityScale;
+					if (!isStart)
+						isStart = true;
+				}
+			}
+			#endif
 		}
 		mainCamera.position = Vector3.Lerp (mainCamera.position, new Vector3 (player.position.x + 1, mainCamera.position.y, mainCamera.position.z), Time.deltaTime*resetSpeed);
 		player.Translate (Vector3.right * moveSpeed * Time.deltaTime);
@@ -42,36 +60,77 @@ public class PlayerController : MonoBehaviour {
 				isStart = false;
 			}
 		}
-	}
 
-	void FixedUpdate() {
-		
+		if (!isStart) {
+			if (Vector3.Distance (player.position, birthPosition) < 0.6) {
+				playerRig.gravityScale = 5;
+			}
+		}
+
+		if (combo >= 3 && combo < 5) {
+			player.GetComponent<SpriteRenderer> ().DOColor (Color.gray, 0.5f);
+			player.DOScale (new Vector3 (4, 4, 4),0.5f);
+		} else if (combo >= 5) {
+			player.GetComponent<SpriteRenderer> ().DOColor (Color.black, 0.5f);
+			player.DOScale (new Vector3 (4.5f, 4.5f, 4.5f),0.5f);
+		} else {
+			player.GetComponent<SpriteRenderer> ().DOColor (Color.white, 0.5f);
+			player.DOScale (new Vector3 (3.5f, 3.5f, 3.5f),0.5f);
+		}
 	}
 		
 	void OnCollisionEnter2D(Collision2D coll) {
 		Transform obj = coll.transform;
 		if (obj.tag == "step") {
-			playerRig.AddForce(Vector2.up * upSpeed);
+			playerRig.AddForce (Vector2.up * upSpeed);
 			playerRig.gravityScale = commonScale;
 			if (moveSpeed == 0 && isStart) {
 				moveSpeed = rightSpeed;
 			} 
-			obj.DOPunchPosition (Vector3.down/10, 0.4f, 8, 0.3f, false);
+			obj.DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
+			StepGenerate.Instance.tempStep = obj;
+
+			if (isStart) {
+				RaycastHit2D[] hitArray = Physics2D.RaycastAll (transform.position, Vector2.down);
+				foreach (RaycastHit2D hit in hitArray) {
+					if (hit.collider.tag == "perfect") {
+						isPerfect = true;
+					}
+				}
+				if (isPerfect) {
+					combo += 1;
+					isPerfect = false;
+				} else {
+					combo = 1;
+				}
+				score = currentLevel * combo;
+				UIManager.Instance.currentScore = score;
+				UIManager.Instance.ScoreAdd (score);
+				UIManager.Instance.SpawnJumpScore ();
+			}
 		}
 	}
-
+		
 	void OnTriggerEnter2D(Collider2D coll){
 		if (coll.transform.tag == "generateWall") {
 			StepGenerate.Instance.InstStep (5);
 		}
 		if (coll.transform.tag == "DeadLine") {
-			//player.position = birthPosition;
-			isReset = false;
+			UIManager.Instance.showGameOver (true);
 			moveSpeed = 0;
-			StepGenerate.Instance.stepPool.DespawnAll ();
-			StepGenerate.Instance.wallPool.DespawnAll ();
-			StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
-			StepGenerate.Instance.InstStep (5);
+			playerRig.gravityScale = 0;
 		}
+	}
+
+	public void GameOver(){
+		UIManager.Instance.showGameOver (false);
+		playerRig.gravityScale = 5;
+		isReset = false;
+		StepGenerate.Instance.stepPool.DespawnAll ();
+		StepGenerate.Instance.wallPool.DespawnAll ();
+		StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
+		StepGenerate.Instance.InstStep (5);
+		UIManager.Instance.UpdateBestScore ();
+		UIManager.Instance.ClearScore ();
 	}
 }

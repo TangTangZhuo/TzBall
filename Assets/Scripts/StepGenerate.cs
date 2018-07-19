@@ -6,11 +6,14 @@ using PathologicalGames;
 public class StepGenerate : MonoBehaviour {
 	private static StepGenerate _instance = null;
 	private Transform firstStep;
+	[HideInInspector]
 	public Transform secondStep;
 	public float stepDistance = 10;
-
+	[HideInInspector]
 	public SpawnPool wallPool;
+	[HideInInspector]
 	public SpawnPool stepPool;
+	public Transform tempStep;
 
 	void Awake(){
 		_instance = this;
