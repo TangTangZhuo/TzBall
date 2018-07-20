@@ -39,7 +39,7 @@ public class UIManager : MonoBehaviour {
 		StepGenerate.Instance.SpawnObject ("JumpScore", "JumpScore", 20, out jumpScorePool);
 		player = GameObject.Find ("player").transform;
 		print (player.position);
-		comboWords = new string[]{"perfect","beautiful","splendid","remarkable"};
+		comboWords = new string[]{"perfect","beautiful","super","cool"};
 	}
 
 	void GetDate(){
