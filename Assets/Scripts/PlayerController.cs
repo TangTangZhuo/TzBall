@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour {
 	Transform player;
@@ -16,6 +17,7 @@ public class PlayerController : MonoBehaviour {
 	private bool isStart = false;
 	private bool isReset = true;
 	private Vector3 birthPosition;
+	private Slider progess;
 
 	private int score = 0;
 	private int currentLevel;
@@ -27,10 +29,12 @@ public class PlayerController : MonoBehaviour {
 		playerRig = player.GetComponent<Rigidbody2D> ();
 		birthPosition = player.position;
 		currentLevel = PlayerPrefs.GetInt ("currentLevel", 1);
+		progess = UIManager.Instance.progress;
 	}
 
 	// Update is called once per frame
 	void Update () {
+		progess.value = player.position.x;
 		if (Vector3.Distance (mainCamera.position, new Vector3 (player.position.x + 1, mainCamera.position.y, mainCamera.position.z)) < 3) {
 
 			if (Input.GetKeyDown (KeyCode.Q)) {
@@ -64,6 +68,7 @@ public class PlayerController : MonoBehaviour {
 		if (!isStart) {
 			if (Vector3.Distance (player.position, birthPosition) < 0.6) {
 				playerRig.gravityScale = 5;
+				UpdataProgress ();
 			}
 		}
 
@@ -77,6 +82,7 @@ public class PlayerController : MonoBehaviour {
 			player.GetComponent<SpriteRenderer> ().DOColor (Color.white, 0.5f);
 			player.DOScale (new Vector3 (3.5f, 3.5f, 3.5f),0.5f);
 		}
+
 	}
 		
 	void OnCollisionEnter2D(Collision2D coll) {
@@ -112,8 +118,9 @@ public class PlayerController : MonoBehaviour {
 	}
 		
 	void OnTriggerEnter2D(Collider2D coll){
-		if (coll.transform.tag == "generateWall") {
-			StepGenerate.Instance.InstStep (5);
+		if (coll.transform.tag == "End") {
+			Time.timeScale = 0.5f;
+			Invoke ("GameWin", 0.5f);
 		}
 		if (coll.transform.tag == "DeadLine") {
 			UIManager.Instance.showGameOver (true);
@@ -128,10 +135,33 @@ public class PlayerController : MonoBehaviour {
 		isReset = false;
 		combo = 1;
 		StepGenerate.Instance.stepPool.DespawnAll ();
-		StepGenerate.Instance.wallPool.DespawnAll ();
 		StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
-		StepGenerate.Instance.InstStep (5);
+		StepGenerate.Instance.InstLevel (UIManager.Instance.currentLevel);
 		UIManager.Instance.UpdateBestScore ();
 		UIManager.Instance.ClearScore ();
+	}
+
+	public void GameWin(){
+		Time.timeScale = 1;
+		moveSpeed = 0;
+		playerRig.gravityScale = 1;
+		currentLevel += 1;
+		UIManager.Instance.currentLevel = currentLevel;
+		UIManager.Instance.UpdateText ();
+		UIManager.Instance.progress.maxValue = StepGenerate.Instance.distanceEnd;
+		UIManager.Instance.UpdateBestScore ();
+		PlayerPrefs.SetInt ("currentLevel", currentLevel);
+		isReset = false;
+		combo = 1;
+		StepGenerate.Instance.stepPool.DespawnAll ();
+		StepGenerate.Instance.endPool.DespawnAll();
+		StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
+		StepGenerate.Instance.InstLevel (currentLevel);
+	}
+
+	void UpdataProgress(){
+		UIManager.Instance.progress.maxValue = StepGenerate.Instance.distanceEnd;
+		UIManager.Instance.progress.minValue = StepGenerate.Instance.startPos;
+
 	}
 }

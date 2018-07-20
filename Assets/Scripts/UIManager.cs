@@ -12,7 +12,9 @@ public class UIManager : MonoBehaviour {
 	public Text bestScoreText;
 	public Transform jumpScoretrans;
 	public GameObject gameOver;
-	private int currentLevel;
+	public Slider progress;
+	[HideInInspector]
+	public int currentLevel;
 	private int score = 0;
 	private int bestScore = 0;
 	private Transform player;
@@ -38,7 +40,6 @@ public class UIManager : MonoBehaviour {
 		UpdateText ();
 		StepGenerate.Instance.SpawnObject ("JumpScore", "JumpScore", 20, out jumpScorePool);
 		player = GameObject.Find ("player").transform;
-		print (player.position);
 		comboWords = new string[]{"perfect","beautiful","super","cool"};
 	}
 
@@ -47,7 +48,7 @@ public class UIManager : MonoBehaviour {
 		bestScore = PlayerPrefs.GetInt ("bestScore", 0);
 	}
 
-	void UpdateText(){
+	public void UpdateText(){
 		currentLevelText.text = currentLevel.ToString();
 		targetLevelText.text = (currentLevel + 1).ToString();
 		bestScoreText.text = "BEST:"+bestScore.ToString ();
@@ -79,8 +80,12 @@ public class UIManager : MonoBehaviour {
 	public void SpawnJumpScore(){
 		Transform jumpscore = jumpScorePool.Spawn ("JumpScore");
 		Text jumpscoreText = jumpscore.GetComponent<Text> ();
-		jumpscoreText.text = comboWords [comboWordsIndex] + "\n+" + currentScore;
-		comboWordsIndex++;
+		if (currentScore == currentLevel) {
+			jumpscoreText.text = "+" + currentLevel;
+		} else {
+			jumpscoreText.text = comboWords [comboWordsIndex] + "\n+" + currentScore;
+			comboWordsIndex++;
+		}
 		if (comboWordsIndex == comboWords.Length - 1)
 			comboWordsIndex = 0;
 		jumpscore.SetParent (jumpScoretrans);
