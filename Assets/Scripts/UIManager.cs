@@ -43,7 +43,7 @@ public class UIManager : MonoBehaviour {
 		comboWords = new string[]{"perfect","beautiful","super","cool"};
 	}
 
-	void GetDate(){
+	public void GetDate(){
 		currentLevel = PlayerPrefs.GetInt ("currentLevel", 1);
 		bestScore = PlayerPrefs.GetInt ("bestScore", 0);
 	}

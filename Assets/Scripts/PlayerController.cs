@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour {
 	public float gravityScale = 20;
 	public float commonScale = 2;
 	public float rightSpeed = 7;
+	public float rotateSpeed = 10;
+	public float resetRotate = 10;
 	public Transform mainCamera;
 	private bool isStart = false;
 	private bool isReset = true;
@@ -23,6 +25,7 @@ public class PlayerController : MonoBehaviour {
 	private int currentLevel;
 	private int combo=1;
 	bool isPerfect = false;
+	bool isWin = false;
 	// Use this for initialization
 	void Start () {
 		player = this.transform;
@@ -38,24 +41,29 @@ public class PlayerController : MonoBehaviour {
 		if (Vector3.Distance (mainCamera.position, new Vector3 (player.position.x + 1, mainCamera.position.y, mainCamera.position.z)) < 3) {
 
 			if (Input.GetKeyDown (KeyCode.Q)) {
-				playerRig.gravityScale = gravityScale;
-				if (!isStart)
-					isStart = true;
+				if (!isWin) {
+					playerRig.gravityScale = gravityScale;
+					if (!isStart)
+						isStart = true;
+				}
 			}
 			#if UNITY_ANDROID
 			if(Input.touchCount==1)
 			{
 				if(Input.touches[0].phase==TouchPhase.Began)
 				{
-					playerRig.gravityScale = gravityScale;
-					if (!isStart)
-						isStart = true;
+					if(!isWin){
+						playerRig.gravityScale = gravityScale;
+						if (!isStart)
+							isStart = true;
+					}
 				}
 			}
 			#endif
 		}
 		mainCamera.position = Vector3.Lerp (mainCamera.position, new Vector3 (player.position.x + 1, mainCamera.position.y, mainCamera.position.z), Time.deltaTime*resetSpeed);
-		player.Translate (Vector3.right * moveSpeed * Time.deltaTime);
+		player.Translate (Vector3.right * moveSpeed * Time.deltaTime,Space.World);
+		player.Rotate (0, 0, rotateSpeed * Time.deltaTime,Space.World);	
 
 		if (!isReset) {
 			player.position = birthPosition;
@@ -73,14 +81,16 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		if (combo >= 3 && combo < 5) {
-			player.GetComponent<SpriteRenderer> ().DOColor (Color.gray, 0.5f);
-			player.DOScale (new Vector3 (4, 4, 4),0.5f);
+			//player.GetComponent<SpriteRenderer> ().DOColor (Color.gray, 0.5f);
+			//player.DOScale (new Vector3 (4, 4, 4),0.5f);
+			EffectManager.Instance.smokeParticle.gameObject.SetActive(true);
 		} else if (combo >= 5) {
-			player.GetComponent<SpriteRenderer> ().DOColor (Color.black, 0.5f);
-			player.DOScale (new Vector3 (4.5f, 4.5f, 4.5f),0.5f);
+			//player.GetComponent<SpriteRenderer> ().DOColor (Color.black, 0.5f);
+			//player.DOScale (new Vector3 (4.5f, 4.5f, 4.5f),0.5f);
 		} else {
-			player.GetComponent<SpriteRenderer> ().DOColor (Color.white, 0.5f);
-			player.DOScale (new Vector3 (3.5f, 3.5f, 3.5f),0.5f);
+			//player.GetComponent<SpriteRenderer> ().DOColor (Color.white, 0.5f);
+			//player.DOScale (new Vector3 (3.5f, 3.5f, 3.5f),0.5f);
+			EffectManager.Instance.smokeParticle.gameObject.SetActive(false);
 		}
 
 	}
@@ -94,6 +104,7 @@ public class PlayerController : MonoBehaviour {
 				moveSpeed = rightSpeed;
 			} 
 			obj.DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
+			obj.parent.Find ("perfect").DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
 			StepGenerate.Instance.tempStep = obj;
 
 			if (isStart) {
@@ -114,12 +125,15 @@ public class PlayerController : MonoBehaviour {
 				UIManager.Instance.ScoreAdd (score);
 				UIManager.Instance.SpawnJumpScore ();
 			}
+
+
 		}
 	}
 		
 	void OnTriggerEnter2D(Collider2D coll){
 		if (coll.transform.tag == "End") {
 			Time.timeScale = 0.5f;
+			isWin = true;
 			Invoke ("GameWin", 0.5f);
 		}
 		if (coll.transform.tag == "DeadLine") {
@@ -152,6 +166,7 @@ public class PlayerController : MonoBehaviour {
 		UIManager.Instance.UpdateBestScore ();
 		PlayerPrefs.SetInt ("currentLevel", currentLevel);
 		isReset = false;
+		isWin = false;
 		combo = 1;
 		StepGenerate.Instance.stepPool.DespawnAll ();
 		StepGenerate.Instance.endPool.DespawnAll();

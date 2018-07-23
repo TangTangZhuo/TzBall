@@ -28,8 +28,8 @@ public class StepGenerate : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		SpawnObject ("Step","step",20,out stepPool);
-		SpawnObject ("End", "End", 1,out endPool);
+		SpawnObject ("Step", "step", 20, out stepPool);
+		SpawnObject ("End", "End", 1, out endPool);
 		firstStep = this.transform;
 		secondStep = stepPool.Spawn("step");
 		secondStep.position = firstStep.position + Vector3.right * stepDistance;
@@ -52,6 +52,7 @@ public class StepGenerate : MonoBehaviour {
 			int offset = rd.Next (-1, 2);
 			Vector3 offsetX = new Vector3 (offset, 0, 0);
 			secondStep.position = new Vector3(firstStep.position.x,0,0) + Vector3.right * stepDistance + Vector3.up * offset;
+
 			firstStep = secondStep;
 			if (i == number-1) {
 				Transform end = endPool.Spawn("End");
