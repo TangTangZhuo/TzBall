@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EffectManager : MonoBehaviour {
-	public Transform smokeParticle;
+	public ParticleSystem smokeParticle;
+	public ParticleSystem smokeRed;
 	public Transform player;
 
 	private static EffectManager _instance;
@@ -20,6 +21,7 @@ public class EffectManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		smokeParticle.position = player.position + Vector3.left / 2;
+		smokeParticle.transform.position = player.position + Vector3.left / 2;
+		smokeRed.transform.position = smokeParticle.transform.position;
 	}
 }

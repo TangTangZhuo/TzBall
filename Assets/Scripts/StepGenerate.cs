@@ -49,21 +49,20 @@ public class StepGenerate : MonoBehaviour {
 	public void InstStep(int number){
 		//GameObject obj = step;
 		firstStep = secondStep;
-
+		System.Random rd = new System.Random ();
 		for (int i = 0; i < number; i++) {
 			secondStep = stepPool.Spawn("step");
-			System.Random rd = new System.Random ();
-			//高度
-			int offset = rd.Next (-1,2);
-			//print (offset);
-			Vector3 offsetX = new Vector3 (offset, 0, 0);
-			secondStep.position = new Vector3(firstStep.position.x,0,0) + Vector3.right * (stepDistance+offset) + Vector3.up * offset;
+
+			//高度,距离
+			int offsetX = rd.Next (-1, 2);
+			int offsetY = rd.Next (-1, 2);
+			Vector3 offset = new Vector3 (offsetX, 0, 0);
+			secondStep.position = new Vector3(firstStep.position.x,0,0) + Vector3.right * (stepDistance+offsetX) + Vector3.up * offsetY;
 			//宽度
-			offset = rd.Next(1,7);
-			print (offset);
-			secondStep.Find ("step").localScale = new Vector3 (localScale.x * offset, localScale.y, localScale.z);
+			int offsetW = rd.Next(1,7);
+			secondStep.Find ("step").localScale = new Vector3 (localScale.x * offsetW, localScale.y, localScale.z);
 
-
+		
 			firstStep = secondStep;
 			if (i == number-1) {
 				Transform end = endPool.Spawn("End");

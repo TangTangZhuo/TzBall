@@ -10,7 +10,8 @@ public class PlayerController : MonoBehaviour {
 	public float upSpeed = 5;
 	private float moveSpeed = 0;
 	public float resetSpeed = 10;
-	public float gravityScale = 20;
+	//public float gravityScale = 20;
+	public float forceDown = 20;
 	public float commonScale = 2;
 	public float rightSpeed = 7;
 	public float rotateSpeed = 10;
@@ -43,18 +44,21 @@ public class PlayerController : MonoBehaviour {
 
 			if (Input.GetKeyDown (KeyCode.Q)) {
 				if (!isWin) {
-					playerRig.gravityScale = gravityScale;
+					//playerRig.gravityScale = gravityScale;
+					playerRig.AddForce(Vector2.down*forceDown);
 					if (!isStart)
 						isStart = true;
 				}
 			}
+
 			#if UNITY_ANDROID
 			if(Input.touchCount==1)
 			{
 				if(Input.touches[0].phase==TouchPhase.Began)
 				{
 					if(!isWin){
-						playerRig.gravityScale = gravityScale;
+						//playerRig.gravityScale = gravityScale;
+						playerRig.AddForce(Vector2.down*forceDown);
 						if (!isStart)
 							isStart = true;
 					}
@@ -76,63 +80,18 @@ public class PlayerController : MonoBehaviour {
 
 		if (!isStart) {
 			if (Vector3.Distance (player.position, birthPosition) < 0.6) {
-				playerRig.gravityScale = 5;
+				//playerRig.gravityScale = 5;
+				playerRig.AddForce(Vector2.down*forceDown/2);
 				UpdataProgress ();
 			}
 		}
 
-		if (combo >= 3 && combo < 5) {
-			//player.GetComponent<SpriteRenderer> ().DOColor (Color.gray, 0.5f);
-			//player.DOScale (new Vector3 (4, 4, 4),0.5f);
-			EffectManager.Instance.smokeParticle.gameObject.SetActive(true);
-		} else if (combo >= 5) {
-			//player.GetComponent<SpriteRenderer> ().DOColor (Color.black, 0.5f);
-			//player.DOScale (new Vector3 (4.5f, 4.5f, 4.5f),0.5f);
-		} else {
-			//player.GetComponent<SpriteRenderer> ().DOColor (Color.white, 0.5f);
-			//player.DOScale (new Vector3 (3.5f, 3.5f, 3.5f),0.5f);
-			EffectManager.Instance.smokeParticle.gameObject.SetActive(false);
-		}
 
 	}
 		
 	void OnCollisionEnter2D(Collision2D coll) {
 		Transform obj = coll.transform;
 
-//		if (obj.tag == "step") {
-//			if (moveSpeed == 0 && isStart) {
-//				moveSpeed = rightSpeed;
-//			} 
-//			playerRig.gravityScale = commonScale;
-//			playerRig.AddForce (Vector2.up * upSpeed);
-//			
-//		
-//			obj.DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
-//			obj.parent.Find ("perfect").DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
-//			StepGenerate.Instance.tempStep = obj;
-//
-//			if (isStart) {
-//				RaycastHit2D[] hitArray = Physics2D.RaycastAll (transform.position, Vector2.down);
-//				foreach (RaycastHit2D hit in hitArray) {
-//					if (hit.collider.tag == "perfect") {
-//						isPerfect = true;
-//					}
-//				}
-//				if (isPerfect) {
-//					combo += 1;
-//					isPerfect = false;
-//				} else {
-//					combo = 1;
-//				}
-//				score = currentLevel * combo;
-//				UIManager.Instance.currentScore = score;
-//				UIManager.Instance.ScoreAdd (score);
-//				UIManager.Instance.SpawnJumpScore ();
-//			}
-//
-//
-//		}
-		//
 		if (obj.tag == "step") {
 			RaycastHit2D[] hitArray = Physics2D.RaycastAll (transform.position, Vector2.down);
 			foreach (RaycastHit2D hit in hitArray) {
@@ -150,7 +109,7 @@ public class PlayerController : MonoBehaviour {
 				} 
 			
 				playerRig.AddForce (Vector2.up * upSpeed);
-				playerRig.gravityScale = commonScale;
+				//playerRig.gravityScale = commonScale;
 
 				obj.DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
 				obj.parent.Find ("perfect").DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
@@ -172,16 +131,23 @@ public class PlayerController : MonoBehaviour {
 				}
 
 				isStep = false;
+
+				if (combo >= 3 && combo < 5) {
+					EffectManager.Instance.smokeParticle.Play();
+				} else if (combo >= 5) {
+					EffectManager.Instance.smokeParticle.Stop();
+					EffectManager.Instance.smokeRed.Play ();
+				} else {
+					EffectManager.Instance.smokeParticle.Stop();
+					EffectManager.Instance.smokeRed.Stop ();
+				}
 			} else {
 				player.GetComponent<CircleCollider2D> ().isTrigger = true;
-				moveSpeed = 0;
-				playerRig.gravityScale = gravityScale;
+				moveSpeed = 1;
+				//playerRig.gravityScale = gravityScale;
+				playerRig.AddForce(Vector2.down*forceDown);
 			}
-				
-
-
 		}
-
 	}
 		
 	void OnTriggerEnter2D(Collider2D coll){
@@ -200,7 +166,7 @@ public class PlayerController : MonoBehaviour {
 	public void GameOver(){
 		player.GetComponent<CircleCollider2D> ().isTrigger = false;
 		UIManager.Instance.showGameOver (false);
-		playerRig.gravityScale = 5;
+		playerRig.gravityScale = 2;
 		isReset = false;
 		combo = 1;
 		StepGenerate.Instance.stepPool.DespawnAll ();
@@ -214,7 +180,7 @@ public class PlayerController : MonoBehaviour {
 	public void GameWin(){
 		Time.timeScale = 1;
 		moveSpeed = 0;
-		playerRig.gravityScale = 1;
+		//playerRig.gravityScale = 1;
 		currentLevel += 1;
 		UIManager.Instance.currentLevel = currentLevel;
 		UIManager.Instance.UpdateText ();
