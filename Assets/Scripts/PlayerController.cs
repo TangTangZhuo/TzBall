@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour {
 	private int combo=1;
 	bool isPerfect = false;
 	bool isWin = false;
+	bool isStep = false;
 	// Use this for initialization
 	void Start () {
 		player = this.transform;
@@ -97,37 +98,90 @@ public class PlayerController : MonoBehaviour {
 		
 	void OnCollisionEnter2D(Collision2D coll) {
 		Transform obj = coll.transform;
-		if (obj.tag == "step") {
-			playerRig.AddForce (Vector2.up * upSpeed);
-			playerRig.gravityScale = commonScale;
-			if (moveSpeed == 0 && isStart) {
-				moveSpeed = rightSpeed;
-			} 
-			obj.DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
-			obj.parent.Find ("perfect").DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
-			StepGenerate.Instance.tempStep = obj;
 
-			if (isStart) {
-				RaycastHit2D[] hitArray = Physics2D.RaycastAll (transform.position, Vector2.down);
-				foreach (RaycastHit2D hit in hitArray) {
-					if (hit.collider.tag == "perfect") {
-						isPerfect = true;
-					}
+//		if (obj.tag == "step") {
+//			if (moveSpeed == 0 && isStart) {
+//				moveSpeed = rightSpeed;
+//			} 
+//			playerRig.gravityScale = commonScale;
+//			playerRig.AddForce (Vector2.up * upSpeed);
+//			
+//		
+//			obj.DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
+//			obj.parent.Find ("perfect").DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
+//			StepGenerate.Instance.tempStep = obj;
+//
+//			if (isStart) {
+//				RaycastHit2D[] hitArray = Physics2D.RaycastAll (transform.position, Vector2.down);
+//				foreach (RaycastHit2D hit in hitArray) {
+//					if (hit.collider.tag == "perfect") {
+//						isPerfect = true;
+//					}
+//				}
+//				if (isPerfect) {
+//					combo += 1;
+//					isPerfect = false;
+//				} else {
+//					combo = 1;
+//				}
+//				score = currentLevel * combo;
+//				UIManager.Instance.currentScore = score;
+//				UIManager.Instance.ScoreAdd (score);
+//				UIManager.Instance.SpawnJumpScore ();
+//			}
+//
+//
+//		}
+		//
+		if (obj.tag == "step") {
+			RaycastHit2D[] hitArray = Physics2D.RaycastAll (transform.position, Vector2.down);
+			foreach (RaycastHit2D hit in hitArray) {
+				if (hit.collider.tag == "perfect") {
+					isPerfect = true;
 				}
-				if (isPerfect) {
-					combo += 1;
-					isPerfect = false;
-				} else {
-					combo = 1;
-				}
-				score = currentLevel * combo;
-				UIManager.Instance.currentScore = score;
-				UIManager.Instance.ScoreAdd (score);
-				UIManager.Instance.SpawnJumpScore ();
+				if (hit.collider.tag == "step") {
+					isStep = true;
+				} 
 			}
+
+			if (isStep) {
+				if (moveSpeed == 0 && isStart) {
+					moveSpeed = rightSpeed;
+				} 
+			
+				playerRig.AddForce (Vector2.up * upSpeed);
+				playerRig.gravityScale = commonScale;
+
+				obj.DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
+				obj.parent.Find ("perfect").DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
+				//获取当前位置生成加分UI
+				StepGenerate.Instance.tempStep = obj;
+
+				if (isStart) {
+					if (isPerfect) {
+						combo += 1;
+						isPerfect = false;
+					} else {
+						combo = 1;
+					}
+
+					score = currentLevel * combo;
+					UIManager.Instance.currentScore = score;
+					UIManager.Instance.ScoreAdd (score);
+					UIManager.Instance.SpawnJumpScore ();
+				}
+
+				isStep = false;
+			} else {
+				player.GetComponent<CircleCollider2D> ().isTrigger = true;
+				moveSpeed = 0;
+				playerRig.gravityScale = gravityScale;
+			}
+				
 
 
 		}
+
 	}
 		
 	void OnTriggerEnter2D(Collider2D coll){
@@ -144,11 +198,13 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	public void GameOver(){
+		player.GetComponent<CircleCollider2D> ().isTrigger = false;
 		UIManager.Instance.showGameOver (false);
 		playerRig.gravityScale = 5;
 		isReset = false;
 		combo = 1;
 		StepGenerate.Instance.stepPool.DespawnAll ();
+		StepGenerate.Instance.endPool.DespawnAll();
 		StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
 		StepGenerate.Instance.InstLevel (UIManager.Instance.currentLevel);
 		UIManager.Instance.UpdateBestScore ();
@@ -172,6 +228,7 @@ public class PlayerController : MonoBehaviour {
 		StepGenerate.Instance.endPool.DespawnAll();
 		StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
 		StepGenerate.Instance.InstLevel (currentLevel);
+		UIManager.Instance.UpdateBestScore ();
 	}
 
 	void UpdataProgress(){

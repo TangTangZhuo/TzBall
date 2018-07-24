@@ -17,6 +17,7 @@ public class StepGenerate : MonoBehaviour {
 	[HideInInspector]
 	public SpawnPool stepPool;
 	public Transform tempStep;
+	Vector3 localScale;
 
 	void Awake(){
 		_instance = this;
@@ -33,6 +34,8 @@ public class StepGenerate : MonoBehaviour {
 		firstStep = this.transform;
 		secondStep = stepPool.Spawn("step");
 		secondStep.position = firstStep.position + Vector3.right * stepDistance;
+		localScale = Resources.Load<Transform> ("step").Find ("step").localScale;
+		secondStep.Find("step").localScale = new Vector3 (localScale.x * 3, localScale.y, localScale.z);
 		InstLevel (UIManager.Instance.currentLevel);
 		startPos = tempStep.position.x;
 	}
@@ -46,12 +49,20 @@ public class StepGenerate : MonoBehaviour {
 	public void InstStep(int number){
 		//GameObject obj = step;
 		firstStep = secondStep;
+
 		for (int i = 0; i < number; i++) {
 			secondStep = stepPool.Spawn("step");
 			System.Random rd = new System.Random ();
-			int offset = rd.Next (-1, 2);
+			//高度
+			int offset = rd.Next (-1,2);
+			//print (offset);
 			Vector3 offsetX = new Vector3 (offset, 0, 0);
-			secondStep.position = new Vector3(firstStep.position.x,0,0) + Vector3.right * stepDistance + Vector3.up * offset;
+			secondStep.position = new Vector3(firstStep.position.x,0,0) + Vector3.right * (stepDistance+offset) + Vector3.up * offset;
+			//宽度
+			offset = rd.Next(1,7);
+			print (offset);
+			secondStep.Find ("step").localScale = new Vector3 (localScale.x * offset, localScale.y, localScale.z);
+
 
 			firstStep = secondStep;
 			if (i == number-1) {
