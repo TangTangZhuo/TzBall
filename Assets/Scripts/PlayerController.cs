@@ -51,7 +51,7 @@ public class PlayerController : MonoBehaviour {
 				}
 			}
 
-			#if UNITY_ANDROID
+			#if UNITY_ANDROID || UNITY_IOS
 			if(Input.touchCount==1)
 			{
 				if(Input.touches[0].phase==TouchPhase.Began)
@@ -145,7 +145,7 @@ public class PlayerController : MonoBehaviour {
 				player.GetComponent<CircleCollider2D> ().isTrigger = true;
 				moveSpeed = 1;
 				//playerRig.gravityScale = gravityScale;
-				playerRig.AddForce(Vector2.down*forceDown);
+				//playerRig.AddForce(Vector2.down*forceDown);
 			}
 		}
 	}
@@ -158,6 +158,7 @@ public class PlayerController : MonoBehaviour {
 		}
 		if (coll.transform.tag == "DeadLine") {
 			UIManager.Instance.showGameOver (true);
+			UIManager.Instance.Complete ();
 			moveSpeed = 0;
 			playerRig.gravityScale = 0;
 		}

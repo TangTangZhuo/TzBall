@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour {
 	public Text currentLevelText;
 	public Text targetLevelText;
 	public Text bestScoreText;
+	public Text completeText;
 	public Transform jumpScoretrans;
 	public GameObject gameOver;
 	public Slider progress;
@@ -32,11 +33,11 @@ public class UIManager : MonoBehaviour {
 	}
 	void Awake(){
 		_instance = this;
+		GetDate ();
 	}
 
 	// Use this for initialization
 	void Start () {
-		GetDate ();
 		UpdateText ();
 		StepGenerate.Instance.SpawnObject ("JumpScore", "JumpScore", 20, out jumpScorePool);
 		player = GameObject.Find ("player").transform;
@@ -100,5 +101,9 @@ public class UIManager : MonoBehaviour {
 
 	public void showGameOver(bool show){
 		gameOver.SetActive (show);
+	}
+
+	public void Complete(){
+		completeText.text = (int)((progress.value-progress.minValue)/(progress.maxValue-progress.minValue)*100) + "%\ncomplete";
 	}
 }

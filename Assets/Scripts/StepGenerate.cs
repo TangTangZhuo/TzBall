@@ -35,7 +35,7 @@ public class StepGenerate : MonoBehaviour {
 		secondStep = stepPool.Spawn("step");
 		secondStep.position = firstStep.position + Vector3.right * stepDistance;
 		localScale = Resources.Load<Transform> ("step").Find ("step").localScale;
-		secondStep.Find("step").localScale = new Vector3 (localScale.x * 3, localScale.y, localScale.z);
+		secondStep.Find("step").localScale = new Vector3 (localScale.x * 6, localScale.y, localScale.z);
 		InstLevel (UIManager.Instance.currentLevel);
 		startPos = tempStep.position.x;
 	}
@@ -49,19 +49,32 @@ public class StepGenerate : MonoBehaviour {
 	public void InstStep(int number){
 		//GameObject obj = step;
 		firstStep = secondStep;
+		int currentLevel = UIManager.Instance.currentLevel;
+		//print (currentLevel);
 		System.Random rd = new System.Random ();
 		for (int i = 0; i < number; i++) {
 			secondStep = stepPool.Spawn("step");
 
-			//高度,距离
-			int offsetX = rd.Next (-1, 2);
+			//距离,高度,宽度
+			int offsetX = rd.Next (-1, 1);
 			int offsetY = rd.Next (-1, 2);
-			Vector3 offset = new Vector3 (offsetX, 0, 0);
-			secondStep.position = new Vector3(firstStep.position.x,0,0) + Vector3.right * (stepDistance+offsetX) + Vector3.up * offsetY;
-			//宽度
-			int offsetW = rd.Next(1,7);
-			secondStep.Find ("step").localScale = new Vector3 (localScale.x * offsetW, localScale.y, localScale.z);
+			int offsetW = 6;
 
+			if (currentLevel == 1) {
+				offsetX = 0;
+				offsetY = 0;
+			} else if (currentLevel <= 10) {
+				offsetW = rd.Next (5, 7);
+
+			} else if (currentLevel <= 20) {
+				offsetW = rd.Next (3, 7);
+			} else {
+				offsetW = rd.Next (1, 7);
+			}
+				
+			//Vector3 offset = new Vector3 (offsetX, 0, 0);
+			secondStep.position = new Vector3(firstStep.position.x,0,0) + Vector3.right * (stepDistance+offsetX) + Vector3.up * offsetY;
+			secondStep.Find ("step").localScale = new Vector3 (localScale.x * offsetW, localScale.y, localScale.z);
 		
 			firstStep = secondStep;
 			if (i == number-1) {
