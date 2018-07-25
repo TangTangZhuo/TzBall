@@ -17,6 +17,11 @@ public class PlayerController : MonoBehaviour {
 	public float rotateSpeed = 10;
 	public float resetRotate = 10;
 	public Transform mainCamera;
+	public Transform bg1;
+	public Transform bg2;
+	private Vector3 bg1Pos;
+	private Vector3 bg2Pos;
+
 	private bool isStart = false;
 	private bool isReset = true;
 	private Vector3 birthPosition;
@@ -35,6 +40,8 @@ public class PlayerController : MonoBehaviour {
 		birthPosition = player.position;
 		currentLevel = PlayerPrefs.GetInt ("currentLevel", 1);
 		progess = UIManager.Instance.progress;
+		bg1Pos = bg1.position;
+		bg2Pos = bg2.position;
 	}
 
 	// Update is called once per frame
@@ -81,7 +88,7 @@ public class PlayerController : MonoBehaviour {
 		if (!isStart) {
 			if (Vector3.Distance (player.position, birthPosition) < 0.6) {
 				//playerRig.gravityScale = 5;
-				playerRig.AddForce(Vector2.down*forceDown/2);
+				//playerRig.AddForce(Vector2.down*forceDown/5);
 				UpdataProgress ();
 			}
 		}
@@ -111,8 +118,9 @@ public class PlayerController : MonoBehaviour {
 				playerRig.AddForce (Vector2.up * upSpeed);
 				//playerRig.gravityScale = commonScale;
 
-				obj.DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
-				obj.parent.Find ("perfect").DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
+				//obj.DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
+				obj.parent.DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
+				//GameObject.FindWithTag("bg").transform.DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
 				//获取当前位置生成加分UI
 				StepGenerate.Instance.tempStep = obj;
 
@@ -143,13 +151,13 @@ public class PlayerController : MonoBehaviour {
 				}
 			} else {
 				player.GetComponent<CircleCollider2D> ().isTrigger = true;
-				moveSpeed = 1;
+				moveSpeed = 0;
 				//playerRig.gravityScale = gravityScale;
 				//playerRig.AddForce(Vector2.down*forceDown);
 			}
 		}
 	}
-		
+
 	void OnTriggerEnter2D(Collider2D coll){
 		if (coll.transform.tag == "End") {
 			Time.timeScale = 0.5f;
@@ -162,15 +170,21 @@ public class PlayerController : MonoBehaviour {
 			moveSpeed = 0;
 			playerRig.gravityScale = 0;
 		}
+		if (coll.name == "bg") {
+			coll.transform.position += new Vector3 (16.843f, 0, 0) * 2;
+		}
 	}
 
 	public void GameOver(){
 		player.GetComponent<CircleCollider2D> ().isTrigger = false;
+		ResetBackground ();
 		UIManager.Instance.showGameOver (false);
 		playerRig.gravityScale = 2;
 		isReset = false;
 		combo = 1;
-		StepGenerate.Instance.stepPool.DespawnAll ();
+		for (int i = 0; i < StepGenerate.Instance.stepPools.Length; i++) {
+			StepGenerate.Instance.stepPools [i].DespawnAll ();
+		}
 		StepGenerate.Instance.endPool.DespawnAll();
 		StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
 		StepGenerate.Instance.InstLevel (UIManager.Instance.currentLevel);
@@ -191,7 +205,10 @@ public class PlayerController : MonoBehaviour {
 		isReset = false;
 		isWin = false;
 		combo = 1;
-		StepGenerate.Instance.stepPool.DespawnAll ();
+		ResetBackground ();
+		for (int i = 0; i < StepGenerate.Instance.stepPools.Length; i++) {
+			StepGenerate.Instance.stepPools [i].DespawnAll ();
+		}
 		StepGenerate.Instance.endPool.DespawnAll();
 		StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
 		StepGenerate.Instance.InstLevel (currentLevel);
@@ -202,5 +219,10 @@ public class PlayerController : MonoBehaviour {
 		UIManager.Instance.progress.maxValue = StepGenerate.Instance.distanceEnd;
 		UIManager.Instance.progress.minValue = StepGenerate.Instance.startPos;
 
+	}
+
+	void ResetBackground(){
+		bg1.position = bg1Pos;
+		bg2.position = bg2Pos;
 	}
 }

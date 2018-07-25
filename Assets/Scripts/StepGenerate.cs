@@ -15,7 +15,19 @@ public class StepGenerate : MonoBehaviour {
 	[HideInInspector]
 	public SpawnPool endPool;
 	[HideInInspector]
-	public SpawnPool stepPool;
+	public SpawnPool step1Pool;
+	[HideInInspector]
+	public SpawnPool step2Pool;
+	[HideInInspector]
+	public SpawnPool step3Pool;
+	[HideInInspector]
+	public SpawnPool step4Pool;
+	[HideInInspector]
+	public SpawnPool step5Pool;
+	[HideInInspector]
+	public SpawnPool step6Pool;
+	[HideInInspector]
+	public SpawnPool[] stepPools;
 	public Transform tempStep;
 	Vector3 localScale;
 
@@ -29,13 +41,20 @@ public class StepGenerate : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		SpawnObject ("Step", "step", 20, out stepPool);
+		SpawnObject ("Step1", "step1", 10, out step1Pool);
+		SpawnObject ("Step2", "step2", 10, out step2Pool);
+		SpawnObject ("Step3", "step3", 10, out step3Pool);
+		SpawnObject ("Step4", "step4", 10, out step4Pool);
+		SpawnObject ("Step5", "step5", 10, out step5Pool);
+		SpawnObject ("Step6", "step6", 10, out step6Pool);
+		stepPools = new SpawnPool[]{ step1Pool, step2Pool, step3Pool, step4Pool, step5Pool, step6Pool };
+
 		SpawnObject ("End", "End", 1, out endPool);
 		firstStep = this.transform;
-		secondStep = stepPool.Spawn("step");
-		secondStep.position = firstStep.position + Vector3.right * stepDistance;
-		localScale = Resources.Load<Transform> ("step").Find ("step").localScale;
-		secondStep.Find("step").localScale = new Vector3 (localScale.x * 6, localScale.y, localScale.z);
+		secondStep = step4Pool.Spawn("step4");
+		secondStep.position = firstStep.position + Vector3.right * (stepDistance-1);
+		//localScale = Resources.Load<Transform> ("step6").Find ("step").localScale;
+		//secondStep.Find("step").localScale = new Vector3 (localScale.x * 6, localScale.y, localScale.z);
 		InstLevel (UIManager.Instance.currentLevel);
 		startPos = tempStep.position.x;
 	}
@@ -53,28 +72,50 @@ public class StepGenerate : MonoBehaviour {
 		//print (currentLevel);
 		System.Random rd = new System.Random ();
 		for (int i = 0; i < number; i++) {
-			secondStep = stepPool.Spawn("step");
+			
+
 
 			//距离,高度,宽度
 			int offsetX = rd.Next (-1, 1);
-			int offsetY = rd.Next (-1, 2);
+			float offsetY = rd.Next (-1, 2);
 			int offsetW = 6;
 
 			if (currentLevel == 1) {
 				offsetX = 0;
 				offsetY = 0;
 			} else if (currentLevel <= 10) {
-				offsetW = rd.Next (5, 7);
+				if (offsetY == -1) {
+					offsetW = rd.Next (4, 6);
+				}else if (offsetY == 1) {
+					offsetY = 2;
+					offsetW = 6;
+				}
 
 			} else if (currentLevel <= 20) {
-				offsetW = rd.Next (3, 7);
+				if (offsetY == -1) {
+					offsetW = rd.Next (4, 6);
+				} else if (offsetY == 1) {
+					offsetW = 6;
+					offsetY = 2;
+				} else if (offsetY == 0) {
+					offsetW = rd.Next (2, 4);
+				}
 			} else {
-				offsetW = rd.Next (1, 7);
+				if (offsetY == -1) {
+					offsetW = rd.Next (4, 6);
+				} else if (offsetY == 1) {
+					offsetW = 6;
+					offsetY = 1.5f;
+				} else if (offsetY == 0) {
+					offsetW = rd.Next (1, 4);
+				}
 			}
-				
+
+			secondStep = stepPools [offsetW - 1].Spawn ("step" + offsetW);
+
 			//Vector3 offset = new Vector3 (offsetX, 0, 0);
 			secondStep.position = new Vector3(firstStep.position.x,0,0) + Vector3.right * (stepDistance+offsetX) + Vector3.up * offsetY;
-			secondStep.Find ("step").localScale = new Vector3 (localScale.x * offsetW, localScale.y, localScale.z);
+			//secondStep.Find ("step").localScale = new Vector3 (localScale.x * offsetW, localScale.y, localScale.z);
 		
 			firstStep = secondStep;
 			if (i == number-1) {
