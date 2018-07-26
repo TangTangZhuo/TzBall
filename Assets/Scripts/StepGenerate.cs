@@ -14,6 +14,7 @@ public class StepGenerate : MonoBehaviour {
 	public float stepDistance = 10;
 	[HideInInspector]
 	public SpawnPool endPool;
+
 	[HideInInspector]
 	public SpawnPool step1Pool;
 	[HideInInspector]
@@ -28,7 +29,25 @@ public class StepGenerate : MonoBehaviour {
 	public SpawnPool step6Pool;
 	[HideInInspector]
 	public SpawnPool[] stepPools;
+
+	[HideInInspector]
+	public SpawnPool draft1Pool;
+	[HideInInspector]
+	public SpawnPool draft2Pool;
+	[HideInInspector]
+	public SpawnPool draft3Pool;
+	[HideInInspector]
+	public SpawnPool draft4Pool;
+	[HideInInspector]
+	public SpawnPool draft5Pool;
+	[HideInInspector]
+	public SpawnPool draft6Pool;
+	[HideInInspector]
+	public SpawnPool[] draftPools;
+
 	public Transform tempStep;
+	public Transform end;
+	public Transform standPos;
 	Vector3 localScale;
 
 	void Awake(){
@@ -49,12 +68,17 @@ public class StepGenerate : MonoBehaviour {
 		SpawnObject ("Step6", "step6", 10, out step6Pool);
 		stepPools = new SpawnPool[]{ step1Pool, step2Pool, step3Pool, step4Pool, step5Pool, step6Pool };
 
-		SpawnObject ("End", "End", 1, out endPool);
+		SpawnObject ("draft1", "draft1", 1, out draft1Pool);
+		SpawnObject ("draft2", "draft2", 1, out draft2Pool);
+		SpawnObject ("draft3", "draft3", 1, out draft3Pool);
+		SpawnObject ("draft4", "draft4", 1, out draft4Pool);
+		SpawnObject ("draft5", "draft5", 1, out draft5Pool);
+		SpawnObject ("draft6", "draft6", 1, out draft6Pool);
+		draftPools = new SpawnPool[]{ draft1Pool, draft2Pool, draft3Pool, draft4Pool, draft5Pool, draft6Pool };
+
 		firstStep = this.transform;
 		secondStep = step4Pool.Spawn("step4");
 		secondStep.position = firstStep.position + Vector3.right * (stepDistance-1);
-		//localScale = Resources.Load<Transform> ("step6").Find ("step").localScale;
-		//secondStep.Find("step").localScale = new Vector3 (localScale.x * 6, localScale.y, localScale.z);
 		InstLevel (UIManager.Instance.currentLevel);
 		startPos = tempStep.position.x;
 	}
@@ -72,9 +96,6 @@ public class StepGenerate : MonoBehaviour {
 		//print (currentLevel);
 		System.Random rd = new System.Random ();
 		for (int i = 0; i < number; i++) {
-			
-
-
 			//距离,高度,宽度
 			int offsetX = rd.Next (-1, 1);
 			float offsetY = rd.Next (-1, 2);
@@ -113,16 +134,26 @@ public class StepGenerate : MonoBehaviour {
 
 			secondStep = stepPools [offsetW - 1].Spawn ("step" + offsetW);
 
-			//Vector3 offset = new Vector3 (offsetX, 0, 0);
 			secondStep.position = new Vector3(firstStep.position.x,0,0) + Vector3.right * (stepDistance+offsetX) + Vector3.up * offsetY;
-			//secondStep.Find ("step").localScale = new Vector3 (localScale.x * offsetW, localScale.y, localScale.z);
-		
+	
 			firstStep = secondStep;
 			if (i == number-1) {
-				Transform end = endPool.Spawn("End");
 				end.position = firstStep.position + Vector3.right * stepDistance / 2;
 				distanceEnd = end.position.x - startPos;
 			}
+		}
+
+		//生成背景涂鸦
+		int distanceDraft = (int)distanceEnd/15;
+		float draftY = standPos.position.y;
+		float currentDraftX = startPos;
+		for (int i = 1; i < distanceDraft+1; i++) {
+			int index = rd.Next (1, 7);
+			Transform draft = draftPools [index - 1].Spawn ("draft" + index);
+			draft.position =  new Vector3 (currentDraftX, draftY+rd.Next(1,3), 0);
+			draft.eulerAngles = new Vector3 (0, 0, rd.Next (-180, 180));
+			currentDraftX += distanceEnd/distanceDraft;	
+			print (rd.Next (-180, 180));
 		}
 	}
 

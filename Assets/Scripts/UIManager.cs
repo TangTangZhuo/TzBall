@@ -90,7 +90,7 @@ public class UIManager : MonoBehaviour {
 		if (comboWordsIndex == comboWords.Length - 1)
 			comboWordsIndex = 0;
 		jumpscore.SetParent (jumpScoretrans);
-		Vector2 targetPostion = Camera.main.WorldToScreenPoint (StepGenerate.Instance.tempStep.position)+Vector3.left*40;
+		Vector2 targetPostion = Camera.main.WorldToScreenPoint (StepGenerate.Instance.tempStep.position)+Vector3.left*40-Vector3.up*100;
 		jumpscore.GetComponent<RectTransform> ().position = targetPostion;
 		jumpscore.DOMoveY (targetPostion.y+100, 1, false).onComplete = delegate() {
 			jumpScorePool.Despawn (jumpscore);

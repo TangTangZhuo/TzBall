@@ -6,6 +6,7 @@ public class EffectManager : MonoBehaviour {
 	public ParticleSystem smokeParticle;
 	public ParticleSystem smokeRed;
 	public Transform player;
+	public FracturedObject fra;
 
 	private static EffectManager _instance;
 	public static EffectManager Instance{
@@ -16,7 +17,7 @@ public class EffectManager : MonoBehaviour {
 	}
 	// Use this for initialization
 	void Start () {
-		
+	
 	}
 	
 	// Update is called once per frame

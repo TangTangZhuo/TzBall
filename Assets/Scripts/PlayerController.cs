@@ -104,6 +104,8 @@ public class PlayerController : MonoBehaviour {
 			foreach (RaycastHit2D hit in hitArray) {
 				if (hit.collider.tag == "perfect") {
 					isPerfect = true;
+					if (isStart)
+						hit.transform.Find ("Particle").GetComponent<ParticleSystem> ().Play ();
 				}
 				if (hit.collider.tag == "step") {
 					isStep = true;
@@ -162,6 +164,7 @@ public class PlayerController : MonoBehaviour {
 		if (coll.transform.tag == "End") {
 			Time.timeScale = 0.5f;
 			isWin = true;
+			EffectManager.Instance.fra.ExplodeChunks(30,(Vector3.left*20),0);
 			Invoke ("GameWin", 0.5f);
 		}
 		if (coll.transform.tag == "DeadLine") {
@@ -185,7 +188,9 @@ public class PlayerController : MonoBehaviour {
 		for (int i = 0; i < StepGenerate.Instance.stepPools.Length; i++) {
 			StepGenerate.Instance.stepPools [i].DespawnAll ();
 		}
-		StepGenerate.Instance.endPool.DespawnAll();
+		for (int i = 0; i < StepGenerate.Instance.draftPools.Length; i++) {
+			StepGenerate.Instance.draftPools [i].DespawnAll ();
+		}
 		StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
 		StepGenerate.Instance.InstLevel (UIManager.Instance.currentLevel);
 		UIManager.Instance.UpdateBestScore ();
@@ -209,10 +214,13 @@ public class PlayerController : MonoBehaviour {
 		for (int i = 0; i < StepGenerate.Instance.stepPools.Length; i++) {
 			StepGenerate.Instance.stepPools [i].DespawnAll ();
 		}
-		StepGenerate.Instance.endPool.DespawnAll();
+		for (int i = 0; i < StepGenerate.Instance.draftPools.Length; i++) {
+			StepGenerate.Instance.draftPools [i].DespawnAll ();
+		}
 		StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
 		StepGenerate.Instance.InstLevel (currentLevel);
 		UIManager.Instance.UpdateBestScore ();
+		EffectManager.Instance.fra.ResetChunks ();
 	}
 
 	void UpdataProgress(){
