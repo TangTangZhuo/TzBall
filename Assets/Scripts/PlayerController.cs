@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour {
 	public Transform bg2;
 	private Vector3 bg1Pos;
 	private Vector3 bg2Pos;
+	private float bgDistance;
 
 	private bool isStart = false;
 	private bool isReset = true;
@@ -42,7 +43,12 @@ public class PlayerController : MonoBehaviour {
 		progess = UIManager.Instance.progress;
 		bg1Pos = bg1.position;
 		bg2Pos = bg2.position;
+		bgDistance = bg2Pos.x - bg1Pos.x;
 	}
+
+//	void FixedUpdate(){
+//		
+//	}
 
 	// Update is called once per frame
 	void Update () {
@@ -53,8 +59,10 @@ public class PlayerController : MonoBehaviour {
 				if (!isWin) {
 					//playerRig.gravityScale = gravityScale;
 					playerRig.AddForce(Vector2.down*forceDown);
-					if (!isStart)
+					if (!isStart) {
 						isStart = true;
+						UIManager.Instance.bestScoreText.gameObject.SetActive (false);
+					}
 				}
 			}
 
@@ -66,8 +74,10 @@ public class PlayerController : MonoBehaviour {
 					if(!isWin){
 						//playerRig.gravityScale = gravityScale;
 						playerRig.AddForce(Vector2.down*forceDown);
-						if (!isStart)
+						if (!isStart){
 							isStart = true;
+							UIManager.Instance.bestScoreText.gameObject.SetActive (false);
+						}
 					}
 				}
 			}
@@ -164,7 +174,7 @@ public class PlayerController : MonoBehaviour {
 		if (coll.transform.tag == "End") {
 			Time.timeScale = 0.5f;
 			isWin = true;
-			EffectManager.Instance.fra.ExplodeChunks(30,(Vector3.left*20),0);
+			EffectManager.Instance.fra.ExplodeChunks(30,(Vector3.left*30),0);
 			Invoke ("GameWin", 0.5f);
 		}
 		if (coll.transform.tag == "DeadLine") {
@@ -174,7 +184,7 @@ public class PlayerController : MonoBehaviour {
 			playerRig.gravityScale = 0;
 		}
 		if (coll.name == "bg") {
-			coll.transform.position += new Vector3 (16.843f, 0, 0) * 2;
+			coll.transform.position += new Vector3 (bgDistance, 0, 0) * 2;
 		}
 	}
 
@@ -195,6 +205,7 @@ public class PlayerController : MonoBehaviour {
 		StepGenerate.Instance.InstLevel (UIManager.Instance.currentLevel);
 		UIManager.Instance.UpdateBestScore ();
 		UIManager.Instance.ClearScore ();
+		UIManager.Instance.bestScoreText.gameObject.SetActive (true);
 	}
 
 	public void GameWin(){
@@ -221,6 +232,7 @@ public class PlayerController : MonoBehaviour {
 		StepGenerate.Instance.InstLevel (currentLevel);
 		UIManager.Instance.UpdateBestScore ();
 		EffectManager.Instance.fra.ResetChunks ();
+		UIManager.Instance.bestScoreText.gameObject.SetActive (true);
 	}
 
 	void UpdataProgress(){

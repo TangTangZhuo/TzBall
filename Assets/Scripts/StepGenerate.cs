@@ -97,19 +97,20 @@ public class StepGenerate : MonoBehaviour {
 		System.Random rd = new System.Random ();
 		for (int i = 0; i < number; i++) {
 			//距离,高度,宽度
-			int offsetX = rd.Next (-1, 1);
 			float offsetY = rd.Next (-1, 2);
-			int offsetW = 6;
+			int offsetW = 5;
 
 			if (currentLevel == 1) {
-				offsetX = 0;
-				offsetY = 0;
+				offsetY = -1;
+				offsetW = 5;
 			} else if (currentLevel <= 10) {
 				if (offsetY == -1) {
 					offsetW = rd.Next (4, 6);
-				}else if (offsetY == 1) {
-					offsetY = 2;
+				} else if (offsetY == 1) {
+					offsetY = 1.5f;
 					offsetW = 6;
+				} else if (offsetY == 0) {
+					offsetW = 3;
 				}
 
 			} else if (currentLevel <= 20) {
@@ -117,7 +118,7 @@ public class StepGenerate : MonoBehaviour {
 					offsetW = rd.Next (4, 6);
 				} else if (offsetY == 1) {
 					offsetW = 6;
-					offsetY = 2;
+					offsetY = 1.5f;
 				} else if (offsetY == 0) {
 					offsetW = rd.Next (2, 4);
 				}
@@ -134,7 +135,7 @@ public class StepGenerate : MonoBehaviour {
 
 			secondStep = stepPools [offsetW - 1].Spawn ("step" + offsetW);
 
-			secondStep.position = new Vector3(firstStep.position.x,0,0) + Vector3.right * (stepDistance+offsetX) + Vector3.up * offsetY;
+			secondStep.position = new Vector3 (firstStep.position.x, 0, 0) + Vector3.right * stepDistance + Vector3.up * (offsetY + 1);
 	
 			firstStep = secondStep;
 			if (i == number-1) {
@@ -153,7 +154,6 @@ public class StepGenerate : MonoBehaviour {
 			draft.position =  new Vector3 (currentDraftX, draftY+rd.Next(1,3), 0);
 			draft.eulerAngles = new Vector3 (0, 0, rd.Next (-180, 180));
 			currentDraftX += distanceEnd/distanceDraft;	
-			print (rd.Next (-180, 180));
 		}
 	}
 

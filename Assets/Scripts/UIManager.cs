@@ -67,7 +67,7 @@ public class UIManager : MonoBehaviour {
 
 	public void ClearScore(){
 		score = 0;
-		scoreText.text = "0";
+		scoreText.text = "Score:0";
 	}
 
 	public void UpdateBestScore(){
@@ -90,13 +90,13 @@ public class UIManager : MonoBehaviour {
 		if (comboWordsIndex == comboWords.Length - 1)
 			comboWordsIndex = 0;
 		jumpscore.SetParent (jumpScoretrans);
-		Vector2 targetPostion = Camera.main.WorldToScreenPoint (StepGenerate.Instance.tempStep.position)+Vector3.left*40-Vector3.up*100;
+		Vector2 targetPostion = Camera.main.WorldToScreenPoint (StepGenerate.Instance.tempStep.position)+Vector3.left*40-Vector3.up*200;
 		jumpscore.GetComponent<RectTransform> ().position = targetPostion;
-		jumpscore.DOMoveY (targetPostion.y+100, 1, false).onComplete = delegate() {
+		jumpscore.DOMoveY (targetPostion.y+100, 0.5f, false).onComplete = delegate() {
 			jumpScorePool.Despawn (jumpscore);
 			jumpscoreText.DOFade (1, 0.1f);
 		};
-		jumpscoreText.DOFade (0.5f, 1);
+		jumpscoreText.DOFade (0.5f, 0.5f);
 	}
 
 	public void showGameOver(bool show){
