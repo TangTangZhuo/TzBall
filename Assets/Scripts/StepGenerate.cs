@@ -43,6 +43,16 @@ public class StepGenerate : MonoBehaviour {
 	[HideInInspector]
 	public SpawnPool draft6Pool;
 	[HideInInspector]
+	public SpawnPool draft7Pool;
+	[HideInInspector]
+	public SpawnPool draft8Pool;
+	[HideInInspector]
+	public SpawnPool draft9Pool;
+	[HideInInspector]
+	public SpawnPool draft10Pool;
+	[HideInInspector]
+	public SpawnPool draft11Pool;
+	[HideInInspector]
 	public SpawnPool[] draftPools;
 
 	public Transform tempStep;
@@ -74,7 +84,14 @@ public class StepGenerate : MonoBehaviour {
 		SpawnObject ("draft4", "draft4", 1, out draft4Pool);
 		SpawnObject ("draft5", "draft5", 1, out draft5Pool);
 		SpawnObject ("draft6", "draft6", 1, out draft6Pool);
-		draftPools = new SpawnPool[]{ draft1Pool, draft2Pool, draft3Pool, draft4Pool, draft5Pool, draft6Pool };
+		SpawnObject ("draft7", "draft7", 1, out draft7Pool);
+		SpawnObject ("draft8", "draft8", 1, out draft8Pool);
+		SpawnObject ("draft9", "draft9", 1, out draft9Pool);
+		SpawnObject ("draft10", "draft10", 1, out draft10Pool);
+		SpawnObject ("draft11", "draft11", 1, out draft11Pool);
+		draftPools = new SpawnPool[] { draft1Pool, draft2Pool, draft3Pool, draft4Pool, draft5Pool, draft6Pool, draft7Pool
+			, draft8Pool, draft9Pool, draft10Pool, draft11Pool
+		};
 
 		firstStep = this.transform;
 		secondStep = step4Pool.Spawn("step4");
@@ -139,7 +156,7 @@ public class StepGenerate : MonoBehaviour {
 	
 			firstStep = secondStep;
 			if (i == number-1) {
-				end.position = firstStep.position + Vector3.right * stepDistance / 2;
+				end.position = firstStep.position + Vector3.right * stepDistance/2;
 				distanceEnd = end.position.x - startPos;
 			}
 		}
@@ -149,7 +166,7 @@ public class StepGenerate : MonoBehaviour {
 		float draftY = standPos.position.y;
 		float currentDraftX = startPos;
 		for (int i = 1; i < distanceDraft+1; i++) {
-			int index = rd.Next (1, 7);
+			int index = rd.Next (1, 12);
 			Transform draft = draftPools [index - 1].Spawn ("draft" + index);
 			draft.position =  new Vector3 (currentDraftX, draftY+rd.Next(1,3), 0);
 			draft.eulerAngles = new Vector3 (0, 0, rd.Next (-180, 180));

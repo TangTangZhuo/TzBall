@@ -155,7 +155,9 @@ public class PlayerController : MonoBehaviour {
 				if (combo >= 3 && combo < 5) {
 					EffectManager.Instance.smokeParticle.Play();
 				} else if (combo >= 5) {
-					EffectManager.Instance.smokeParticle.Stop();
+					EffectManager.Instance.smokeParticle.Play();
+					//EffectManager.Instance.smokeParticle.Stop();
+					//EffectManager.Instance.smokeParticle.Stop();
 					EffectManager.Instance.smokeRed.Play ();
 				} else {
 					EffectManager.Instance.smokeParticle.Stop();
