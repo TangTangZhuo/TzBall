@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour {
 	private Vector3 bg1Pos;
 	private Vector3 bg2Pos;
 	private float bgDistance;
+	private Color[] colors;
 
 	private bool isStart = false;
 	private bool isReset = true;
@@ -34,6 +35,8 @@ public class PlayerController : MonoBehaviour {
 	bool isPerfect = false;
 	bool isWin = false;
 	bool isStep = false;
+
+	ShaderFire shaderFire;
 	// Use this for initialization
 	void Start () {
 		player = this.transform;
@@ -44,6 +47,12 @@ public class PlayerController : MonoBehaviour {
 		bg1Pos = bg1.position;
 		bg2Pos = bg2.position;
 		bgDistance = bg2Pos.x - bg1Pos.x;
+		shaderFire =  gameObject.GetComponent<ShaderFire> ();
+		colors = new Color[] {new Color (255/255f, 201/255f, 201/255f), new Color (255/255f, 201/255f, 237/255f), 
+			new Color (222/255f, 201/255f, 255/255f),new Color (201/255f, 234/255f, 255/255f), 
+			new Color (201/255f, 255/255f, 231/255f), new Color (246/255f, 255/255f, 201/255f), 
+			new Color (167/255f, 167/255f, 167/255f),new Color (255/255f, 255/255f, 255/255f)
+		};
 	}
 
 //	void FixedUpdate(){
@@ -92,6 +101,7 @@ public class PlayerController : MonoBehaviour {
 			if (Vector3.Distance (player.position, birthPosition) < 0.1) {
 				isReset = true;
 				isStart = false;
+
 			}
 		}
 
@@ -156,18 +166,17 @@ public class PlayerController : MonoBehaviour {
 					EffectManager.Instance.smokeParticle.Play();
 				} else if (combo >= 5) {
 					EffectManager.Instance.smokeParticle.Play();
-					//EffectManager.Instance.smokeParticle.Stop();
-					//EffectManager.Instance.smokeParticle.Stop();
 					EffectManager.Instance.smokeRed.Play ();
+					shaderFire.DestroyWithFire (obj.parent.Find("stepIma"));
+
 				} else {
 					EffectManager.Instance.smokeParticle.Stop();
 					EffectManager.Instance.smokeRed.Stop ();
+
 				}
 			} else {
 				player.GetComponent<CircleCollider2D> ().isTrigger = true;
 				moveSpeed = 0;
-				//playerRig.gravityScale = gravityScale;
-				//playerRig.AddForce(Vector2.down*forceDown);
 			}
 		}
 	}
@@ -224,6 +233,7 @@ public class PlayerController : MonoBehaviour {
 		isWin = false;
 		combo = 1;
 		ResetBackground ();
+		ChangeBGColor ();
 		for (int i = 0; i < StepGenerate.Instance.stepPools.Length; i++) {
 			StepGenerate.Instance.stepPools [i].DespawnAll ();
 		}
@@ -235,6 +245,9 @@ public class PlayerController : MonoBehaviour {
 		UIManager.Instance.UpdateBestScore ();
 		EffectManager.Instance.fra.ResetChunks ();
 		UIManager.Instance.bestScoreText.gameObject.SetActive (true);
+		player.position = birthPosition;
+		mainCamera.position = new Vector3 (birthPosition.x + 1, mainCamera.position.y, mainCamera.position.z);
+
 	}
 
 	void UpdataProgress(){
@@ -247,4 +260,20 @@ public class PlayerController : MonoBehaviour {
 		bg1.position = bg1Pos;
 		bg2.position = bg2Pos;
 	}
+
+	void ChangeBGColor(){
+		System.Random rand = new System.Random ();
+		SpriteRenderer spriteR = bg1.GetComponent<SpriteRenderer> ();
+		int i = 0;
+		while (i == 0) {
+			int index = rand.Next (0, 8);
+			Color color = colors [index];
+			if (color != spriteR.color) {
+				spriteR.DOColor(colors [index], 0.5f);
+				bg2.GetComponent<SpriteRenderer> ().DOColor(colors [index], 0.5f);;
+				i = 1;
+			}
+		}
+	}
+
 }

@@ -50,8 +50,8 @@ public class UIManager : MonoBehaviour {
 	}
 
 	public void UpdateText(){
-		currentLevelText.text = currentLevel.ToString();
-		targetLevelText.text = (currentLevel + 1).ToString();
+		currentLevelText.text ="Lv " + currentLevel.ToString();
+		targetLevelText.text = "Lv " + (currentLevel + 1).ToString();
 		bestScoreText.text = "BEST:"+bestScore.ToString ();
 	}
 	
