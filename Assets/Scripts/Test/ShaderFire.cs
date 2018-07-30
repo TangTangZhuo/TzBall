@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ShaderFire : MonoBehaviour {
-	Shader shader;
-	Shader defaultShader;
-
+	public Material targetMaterial;
+	public Material defaultMaterial;
+	bool isIE = true;
 	void Start () {
-		shader = Shader.Find ("Shader Forge/Dissolve2D");
-		defaultShader = Shader.Find ("Shader Forge/defautShader");
 	}
 	
 	// Update is called once per frame
@@ -18,22 +16,22 @@ public class ShaderFire : MonoBehaviour {
 
 	public void DestroyWithFire(Transform trans){
 		float value = 0.26f;
-		Material material;
-		material = trans.GetComponent<SpriteRenderer> ().material;
-		material.shader = shader;
-		StartCoroutine (IDestroyWithFire(value,material));
+		Material dMaterial = defaultMaterial;
+		SpriteRenderer sr = trans.GetComponent<SpriteRenderer> ();
+		sr.material = targetMaterial;
+		StartCoroutine (IDestroyWithFire(value,sr,dMaterial));
 	}
 
-	IEnumerator IDestroyWithFire(float value ,Material material){
-		for (float timer = 0; timer < 1; timer += Time.deltaTime/15) {
-			value = Mathf.Lerp (value, 0.76f, timer);
-			material.SetFloat ("_value", value);
-			if (Mathf.Abs (value - 0.76f) < 0.0001f) {
-				material.shader = defaultShader;
-				continue;
+	IEnumerator IDestroyWithFire(float value ,SpriteRenderer sr,Material dMaterial){
+			for (float timer = 0; timer < 1; timer += Time.deltaTime /15) {
+				value = Mathf.Lerp (value, 0.76f, timer);
+				sr.material.SetFloat ("_value", value);
+				if (Mathf.Abs (value - 0.76f) < 0.0001f) {
+					sr.material = dMaterial;
+					continue;
+				}
+				yield return 0;
 			}
-			yield return 0;
-		}
 	}
 		
 }

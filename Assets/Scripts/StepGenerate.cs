@@ -54,10 +54,13 @@ public class StepGenerate : MonoBehaviour {
 	public SpawnPool draft11Pool;
 	[HideInInspector]
 	public SpawnPool[] draftPools;
+	[HideInInspector]
+	public float endPosition;
 
 	public Transform tempStep;
 	public Transform end;
 	public Transform standPos;
+
 	Vector3 localScale;
 
 	void Awake(){
@@ -156,8 +159,12 @@ public class StepGenerate : MonoBehaviour {
 	
 			firstStep = secondStep;
 			if (i == number-1) {
-				end.position = firstStep.position + Vector3.right * stepDistance/2;
-				distanceEnd = end.position.x - startPos;
+				Transform endBanner = GameObject.Instantiate (end, firstStep.position + Vector3.right * stepDistance / 2, end.rotation).transform; 
+				//endBanner.Find("endBanner").GetComponent<FracturedObject> ().StartStatic = false;
+				//end.position = firstStep.position + Vector3.right * stepDistance/2;
+				distanceEnd = endBanner.position.x - startPos;
+				endPosition = firstStep.position.x;
+	
 			}
 		}
 
@@ -172,6 +179,7 @@ public class StepGenerate : MonoBehaviour {
 			draft.eulerAngles = new Vector3 (0, 0, rd.Next (-180, 180));
 			currentDraftX += distanceEnd/distanceDraft;	
 		}
+
 	}
 
 	//生成关卡

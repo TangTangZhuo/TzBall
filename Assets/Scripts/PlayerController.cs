@@ -16,9 +16,11 @@ public class PlayerController : MonoBehaviour {
 	public float rightSpeed = 7;
 	public float rotateSpeed = 10;
 	public float resetRotate = 10;
+	public float bowForce = 100;
 	public Transform mainCamera;
 	public Transform bg1;
 	public Transform bg2;
+	public Image progressBG;
 	private Vector3 bg1Pos;
 	private Vector3 bg2Pos;
 	private float bgDistance;
@@ -36,6 +38,9 @@ public class PlayerController : MonoBehaviour {
 	bool isWin = false;
 	bool isStep = false;
 
+	private int colorIndex = 0;
+	private Transform endBanner;
+
 	ShaderFire shaderFire;
 	// Use this for initialization
 	void Start () {
@@ -48,10 +53,11 @@ public class PlayerController : MonoBehaviour {
 		bg2Pos = bg2.position;
 		bgDistance = bg2Pos.x - bg1Pos.x;
 		shaderFire =  gameObject.GetComponent<ShaderFire> ();
-		colors = new Color[] {new Color (255/255f, 201/255f, 201/255f), new Color (255/255f, 201/255f, 237/255f), 
-			new Color (222/255f, 201/255f, 255/255f),new Color (201/255f, 234/255f, 255/255f), 
-			new Color (201/255f, 255/255f, 231/255f), new Color (246/255f, 255/255f, 201/255f), 
-			new Color (167/255f, 167/255f, 167/255f),new Color (255/255f, 255/255f, 255/255f)
+		colors = new Color[] {new Color (201/255f, 234/255f, 255/255f), new Color (201/255f, 255/255f, 231/255f), new Color (246/255f, 255/255f, 201/255f), 
+			new Color(49/255f,234/255f,255/255f),new Color(254/255f,202/255f,156/255f),new Color(155/255f,206/255f,253/255f),
+			new Color(207/255f,193/255f,167/255f),new Color(184/255f,195/255f,152/255f),new Color(229/255f,236/255f,246/255f),
+			//new Color(/255f,/255f,/255f),new Color(/255f,/255f,/255f),new Color(/255f,/255f,/255f),
+			new Color (255/255f, 255/255f, 255/255f)
 		};
 	}
 
@@ -136,8 +142,8 @@ public class PlayerController : MonoBehaviour {
 				if (moveSpeed == 0 && isStart) {
 					moveSpeed = rightSpeed;
 				} 
-			
 				playerRig.AddForce (Vector2.up * upSpeed);
+				endBanner = GameObject.FindGameObjectWithTag ("endBanner").transform;
 				//playerRig.gravityScale = commonScale;
 
 				//obj.DOPunchPosition (Vector3.down / 10, 0.4f, 8, 0.3f, false);
@@ -172,20 +178,42 @@ public class PlayerController : MonoBehaviour {
 				} else {
 					EffectManager.Instance.smokeParticle.Stop();
 					EffectManager.Instance.smokeRed.Stop ();
-
 				}
 			} else {
 				player.GetComponent<CircleCollider2D> ().isTrigger = true;
 				moveSpeed = 0;
 			}
+
+			if (Mathf.Abs(player.position.x-StepGenerate.Instance.endPosition)<1) {
+				moveSpeed = 0;
+				playerRig.bodyType = RigidbodyType2D.Static;
+				EffectManager.Instance.smokeParticle.Play();
+				EffectManager.Instance.smokeRed.Play ();
+				endBanner.Find ("endImage").gameObject.SetActive (false);
+				endBanner.Find ("endBanner").gameObject.SetActive (true);
+				shaderFire.DestroyWithFire (obj.parent.Find("stepIma"));
+				isWin = true;
+				Invoke ("PowStorage", 0.5f);
+			}
+			Haptic.HapticMid ();
 		}
 	}
 
+	void PowStorage(){
+		playerRig.bodyType = RigidbodyType2D.Dynamic;
+		playerRig.AddForce (Vector2.up * upSpeed);
+		moveSpeed = 20;
+	}
+
 	void OnTriggerEnter2D(Collider2D coll){
-		if (coll.transform.tag == "End") {
+//		if (coll.transform.tag == "End") {
+//			isWin = true;
+//			//moveSpeed = 20;
+//		}
+		if (coll.transform.tag == "afterEnd") {
 			Time.timeScale = 0.5f;
-			isWin = true;
-			EffectManager.Instance.fra.ExplodeChunks(30,(Vector3.left*30),0);
+			playerRig.gravityScale = 0.5f;
+			//EffectManager.Instance.fra.ExplodeChunks(30,(Vector3.left*30),0);
 			Invoke ("GameWin", 0.5f);
 		}
 		if (coll.transform.tag == "DeadLine") {
@@ -213,6 +241,8 @@ public class PlayerController : MonoBehaviour {
 			StepGenerate.Instance.draftPools [i].DespawnAll ();
 		}
 		StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
+		endBanner.Find ("endBanner").GetComponent<FracturedObject> ().DeleteChunks ();
+		GameObject.Destroy (endBanner.gameObject);
 		StepGenerate.Instance.InstLevel (UIManager.Instance.currentLevel);
 		UIManager.Instance.UpdateBestScore ();
 		UIManager.Instance.ClearScore ();
@@ -221,6 +251,7 @@ public class PlayerController : MonoBehaviour {
 
 	public void GameWin(){
 		Time.timeScale = 1;
+		playerRig.gravityScale = 2;
 		moveSpeed = 0;
 		//playerRig.gravityScale = 1;
 		currentLevel += 1;
@@ -241,9 +272,11 @@ public class PlayerController : MonoBehaviour {
 			StepGenerate.Instance.draftPools [i].DespawnAll ();
 		}
 		StepGenerate.Instance.secondStep.position = GameObject.Find ("step").transform.position;
+		endBanner.Find ("endBanner").GetComponent<FracturedObject> ().DeleteChunks ();
+		GameObject.Destroy (endBanner.gameObject);
 		StepGenerate.Instance.InstLevel (currentLevel);
 		UIManager.Instance.UpdateBestScore ();
-		EffectManager.Instance.fra.ResetChunks ();
+		//EffectManager.Instance.fra.ResetChunks ();
 		UIManager.Instance.bestScoreText.gameObject.SetActive (true);
 		player.position = birthPosition;
 		mainCamera.position = new Vector3 (birthPosition.x + 1, mainCamera.position.y, mainCamera.position.z);
@@ -262,18 +295,14 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void ChangeBGColor(){
-		System.Random rand = new System.Random ();
-		SpriteRenderer spriteR = bg1.GetComponent<SpriteRenderer> ();
-		int i = 0;
-		while (i == 0) {
-			int index = rand.Next (0, 8);
-			Color color = colors [index];
-			if (color != spriteR.color) {
-				spriteR.DOColor(colors [index], 0.5f);
-				bg2.GetComponent<SpriteRenderer> ().DOColor(colors [index], 0.5f);;
-				i = 1;
-			}
-		}
+		Color color = colors [colorIndex];
+		bg1.GetComponent<SpriteRenderer> ().DOColor(color, 0.2f);
+		bg2.GetComponent<SpriteRenderer> ().DOColor(color, 0.2f);
+		progressBG.DOColor (color, 0.2f);
+		colorIndex++;
+		if (colorIndex == colors.Length)
+			colorIndex = 0;
+		
 	}
 
 }
