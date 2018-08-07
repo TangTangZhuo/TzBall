@@ -21,6 +21,7 @@ public class FacebookManager : MonoBehaviour {
 		if (FB.IsInitialized) {
 			// Signal an app activation App Event
 			FB.ActivateApp();
+			Debug.Log ("Initialize the Facebook SDK");
 			// Continue with Facebook SDK
 			// ...
 		} else {
@@ -36,6 +37,23 @@ public class FacebookManager : MonoBehaviour {
 		} else {
 			// Resume the game - we're getting focus again
 			Time.timeScale = 1;
+		}
+	}
+
+	void OnApplicationPause (bool pauseStatus)
+	{
+		// Check the pauseStatus to see if we are in the foreground
+		// or background
+		if (!pauseStatus) {
+			//app resume
+			if (FB.IsInitialized) {
+				FB.ActivateApp();
+			} else {
+				//Handle FB.Init
+				FB.Init( () => {
+					FB.ActivateApp();
+				});
+			}
 		}
 	}
 }

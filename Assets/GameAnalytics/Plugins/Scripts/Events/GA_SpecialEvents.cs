@@ -39,7 +39,7 @@ namespace GameAnalyticsSDK.Events
 			StartCoroutine(SubmitFPSRoutine());
 			StartCoroutine(CheckCriticalFPSRoutine());
 		}
-		
+
 		private IEnumerator SubmitFPSRoutine()
 		{
 			while(Application.isPlaying && GameAnalytics.SettingsGA.SubmitFpsAverage)
